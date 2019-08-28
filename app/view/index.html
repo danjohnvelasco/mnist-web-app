@@ -1,0 +1,38 @@
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>MNIST Web App</title>
+    <link rel='stylesheet' href='../static/style.css'>
+
+</head>
+
+<body>
+    <div class="center">
+        <div class='title'>Classify Digits</div>
+        <p>
+          Draw digits <strong>0 &rarr; 9</strong> on the canvas below.
+        </p>
+        <div class="container">
+            <canvas id="canvas" style="border: 1px solid black" width="400" height="400"></canvas>
+        </div>
+
+        <div class='analyze'>
+          <button id='analyze-button' class='analyze-button' type='button' onclick='analyze()'>Analyze</button>
+        </div>
+
+        <div class='result-label'>
+            <label id='result-label'></label>
+        </div>
+
+        <!-- receiver of image -->
+        <input id='file-input'
+               class='no-display'
+               type='hidden'
+               name='file'
+               accept='image/*'>
+    </div>
+
+    <script src='../static/client.js'></script>
+</body>
+
+</html>
