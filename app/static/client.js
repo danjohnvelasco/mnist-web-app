@@ -107,9 +107,9 @@ function analyze () {
     xhr.onload = function(ev) {
       if (this.readyState === 4) {
         var response = JSON.parse(ev.target.responseText);
-        el("result-label").innerHTML = `Result = ${response["result"]}`;
+        element("result-label").innerHTML = `Result = ${response["result"]}`;
       }
-      el("analyze-button").innerHTML = "Analyze";
+      element("analyze-button").innerHTML = "Analyze";
     };
 
     xhr.send(fileData);
