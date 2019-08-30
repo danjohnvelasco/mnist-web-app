@@ -11,6 +11,9 @@ var context = canvas.getContext("2d");
 context.fillStyle = "white";
 context.fillRect(0, 0, canvas.width, canvas.height);
 
+// set brush width
+context.lineWidth = 15;
+
 // Attach event listeners to canvas element
 canvas.addEventListener('mousemove', draw, false); // Mouse movement
 canvas.addEventListener('mouseup', setPosition, false); // Button released
@@ -28,7 +31,6 @@ function draw (ev) {
     context.beginPath();
 
     context.moveTo(pos.x, pos.y); // from position
-    console.log("x: " + pos.x + " y: " + pos.y);
     setPosition(ev);
     context.lineTo(pos.x, pos.y); // to position
 
@@ -70,32 +72,23 @@ function dataURItoBlob(dataURI) {
     return new Blob([ia], {type:mimeString});
 }
 
-
+var img_dim = 28;
 function analyze () {
-/*
-    var img = canvas.toDataURL("image/png");
-    var file = dataURItoBlob(img);
-*/
-    var fileData = new FormData();
-
-    canvas.toBlob(function(blob) {
-      var img = document.createElement('img'),
-          url = URL.createObjectURL(blob);
-
-      img.onload = function() {
-        // no longer need to read the blob so it's revoked
-        URL.revokeObjectURL(url);
-      };
-
-      img.src = url;
-      document.body.appendChild(img);
-      fileData.append("file", img[0]);
-    });
+    var file, img64, buffer, ctx, img,
+    formData, xhr, loc;
 
     element("analyze-button").innerHTML = "Analyzing...";
 
-    var xhr = new XMLHttpRequest();
-    var loc = window.location;
+    // create buffer canvas
+    buffer = document.createElement('canvas');
+    ctx = buffer.getContext('2d');
+
+    // converts to 28 x 28 images
+    img = Canvas2Image.convertToImage(canvas, img_dim, img_dim, "png");
+
+    formData = new FormData();
+    xhr = new XMLHttpRequest();
+    loc = window.location;
 
     xhr.open("POST", `${loc.protocol}//${loc.hostname}:${loc.port}/analyze`,
       true);
@@ -108,9 +101,27 @@ function analyze () {
       if (this.readyState === 4) {
         var response = JSON.parse(ev.target.responseText);
         element("result-label").innerHTML = `Result = ${response["result"]}`;
+<<<<<<< HEAD
+=======
+        console.log("onload done");
+>>>>>>> added canvas2image
       }
       element("analyze-button").innerHTML = "Analyze";
     };
 
-    xhr.send(fileData);
+    img.onload = function() {
+        buffer.width = img_dim;
+        buffer.height = img_dim;
+        ctx.drawImage(img, 0, 0, img.width, img.height,0,0,img_dim,img_dim);
+
+        // for displaying image
+        test = Canvas2Image.convertToImage(buffer, img_dim, img_dim, "png");
+        document.body.appendChild(test);
+
+        // base64 to blob then send to server
+        img64 = buffer.toDataURL("image/png");
+        file = dataURItoBlob(img64);
+        formData.append("file", file);
+        xhr.send(formData);
+    }
 }
