@@ -101,10 +101,7 @@ function analyze () {
       if (this.readyState === 4) {
         var response = JSON.parse(ev.target.responseText);
         element("result-label").innerHTML = `Result = ${response["result"]}`;
-<<<<<<< HEAD
-=======
         console.log("onload done");
->>>>>>> added canvas2image
       }
       element("analyze-button").innerHTML = "Analyze";
     };
