@@ -26,25 +26,99 @@ var pos = {x: 0, y : 0};
 
 // Function responsible for drawing. Executed only when mouse is moving
 function draw (ev) {
-    if (ev.buttons != 1) { // if button isn't pressed
-        return;
+    if (ev.buttons == 1 || first != null) { // if button isn't pressed
+        context.beginPath();
+
+        context.moveTo(pos.x, pos.y); // from position
+        setPosition(ev);
+        context.lineTo(pos.x, pos.y); // to position
+
+        context.stroke();
+    } else {
+        console.log("mousevent / touch fail");
+        return
+    }
+}
+
+// Support mobile touch
+var first;
+
+function touchHandler(event)
+{
+    var touches = event.changedTouches,
+        type = "";
+
+    first = touches[0];
+    switch(event.type)
+    {
+        case "touchstart": type = "mousedown"; console.log("start"); break;
+        case "touchmove":  type = "mousemove"; console.log("move"); break;
+        case "touchend":   type = "mouseup";   console.log("end"); break;
+        default:           return;
     }
 
-    context.beginPath();
+    // initMouseEvent(type, canBubble, cancelable, view, clickCount,
+    //                screenX, screenY, clientX, clientY, ctrlKey,
+    //                altKey, shiftKey, metaKey, button, relatedTarget);
 
-    context.moveTo(pos.x, pos.y); // from position
-    setPosition(ev);
-    context.lineTo(pos.x, pos.y); // to position
+    var simulatedEvent = document.createEvent("MouseEvent", "buttons");
+    simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                  first.screenX, first.screenY,
+                                  first.clientX, first.clientY, false,
+                                  false, false, false, 0/*left*/, null);
 
-    context.stroke();
+    canvas.dispatchEvent(simulatedEvent);
+    event.preventDefault();
 }
+
+function init()
+{
+    canvas.addEventListener("touchstart", touchHandler, true);
+    canvas.addEventListener("touchmove", touchHandler, true);
+    canvas.addEventListener("touchend", touchHandler, true);
+    canvas.addEventListener("touchcancel", touchHandler, true);
+}
+
+init();
 
 // Function responsible for updating mouse pointer coordinates
 // offsetX, offsetY return x,y coordinate of mouse pointer relative to element
 function setPosition (ev) {
+    console.log("setPosition");
     pos.x = ev.offsetX;
     pos.y = ev.offsetY;
 }
+
+/*
+// Mobile touch controls
+// Set up touch events for mobile, etc
+canvas.addEventListener("touchstart", function (e) {
+    console.log("touchstart");
+    mousePos = getTouchPos(canvas, e);
+    var touch = e.touches[0];
+    var mouseEvent = new MouseEvent("mousemove", setPosition);
+    canvas.dispatchEvent(mouseEvent);
+}, false);
+
+canvas.addEventListener("touchend", function (e) {
+    console.log("touchend");
+    var mouseEvent = new MouseEvent("mousemove", setPosition);
+    canvas.dispatchEvent(mouseEvent);
+}, false);
+
+canvas.addEventListener("touchmove", function (e) {
+    console.log("touchmove");
+    var touch = e.touches[0];
+    var mouseEvent = new MouseEvent("mousemove", draw);
+    canvas.dispatchEvent(mouseEvent);
+}, false);
+
+// Get the position of a touch relative to the canvas
+function getTouchPos(canvasDom, touchEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  pos.x = touchEvent.touches[0].clientX - rect.left;
+  pos.y = touchEvent.touches[0].clientY - rect.top;
+}*/
 
 function dataURItoBlob(dataURI) {
     // convert base64/URLEncoded data component to raw binary data held in a string
