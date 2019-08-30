@@ -8,11 +8,13 @@ var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
 // Set canvas color
-context.fillStyle = "white";
+context.fillStyle = "black";
 context.fillRect(0, 0, canvas.width, canvas.height);
 
-// set brush width
-context.lineWidth = 15;
+// set brush color and width
+context.strokeStyle = "white";
+context.lineCap = "round";
+context.lineWidth = 13;
 
 // Attach event listeners to canvas element
 canvas.addEventListener('mousemove', draw, false); // Mouse movement
@@ -44,17 +46,6 @@ function setPosition (ev) {
     pos.y = ev.offsetY;
 }
 
-function b64ToUint8Array(b64Image) {
-   var img = atob(b64Image.split(',')[1]);
-   var img_buffer = [];
-   var i = 0;
-   while (i < img.length) {
-      img_buffer.push(img.charCodeAt(i));
-      i++;
-   }
-   return new Uint8Array(img_buffer);
-}
-
 function dataURItoBlob(dataURI) {
     // convert base64/URLEncoded data component to raw binary data held in a string
     var byteString;
@@ -72,15 +63,21 @@ function dataURItoBlob(dataURI) {
     return new Blob([ia], {type:mimeString});
 }
 
+element("clear-button").addEventListener('click', function () {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "black";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+}, false);
+
 var img_dim = 28;
 function analyze () {
     var file, img64, buffer, ctx, img,
     formData, xhr, loc;
 
-    element("analyze-button").innerHTML = "Analyzing...";
-
     // create buffer canvas
     buffer = document.createElement('canvas');
+    buffer.width = img_dim;
+    buffer.height = img_dim;
     ctx = buffer.getContext('2d');
 
     // converts to 28 x 28 images
@@ -107,8 +104,6 @@ function analyze () {
     };
 
     img.onload = function() {
-        buffer.width = img_dim;
-        buffer.height = img_dim;
         ctx.drawImage(img, 0, 0, img.width, img.height,0,0,img_dim,img_dim);
 
         // for displaying image
@@ -121,4 +116,10 @@ function analyze () {
         formData.append("file", file);
         xhr.send(formData);
     }
+
+/* upload image feature
+    element("analyze-button").innerHTML = "Analyzing...";
+    upload = element("file-input").files;
+    formData.append("file", upload[0]);
+    xhr.send(formData);*/
 }
